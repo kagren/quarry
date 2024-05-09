@@ -1,3 +1,4 @@
+import * as metaplex from "@metaplex-foundation/mpl-token-metadata";
 import * as anchor from "@project-serum/anchor";
 import { assertTXSuccess, expectTX } from "@saberhq/chai-solana";
 import type { Provider } from "@saberhq/solana-contrib";
@@ -9,8 +10,7 @@ import {
   TokenAmount,
   u64,
 } from "@saberhq/token-utils";
-import type { PublicKey } from "@solana/web3.js";
-import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import * as assert from "assert";
 import { expect } from "chai";
 
@@ -284,6 +284,88 @@ describe("MintWrapper", () => {
           },
         }),
         "mint"
+      ).to.be.rejected;
+    });
+
+    it("Change the metadata update authority", async () => {
+      const newAuthority = Keypair.generate();
+      const tx = await mintWrapper.setMetaplexUpdateAuthority(
+        token,
+        mintWrapperKey,
+        newAuthority.publicKey
+      );
+
+      await expectTX(tx, "set new metadata update authority").to.be.fulfilled;
+
+      // Verify that we can update the metadata with the new authority
+      const tokenMetadata = {
+        name: "test",
+        symbol: "test",
+        uri: "test",
+        sellerFeeBasisPoints: 0,
+        creators: null,
+        collection: null,
+        uses: null,
+      } as metaplex.DataV2;
+
+      const metadataPDA = (
+        await PublicKey.findProgramAddress(
+          [
+            Buffer.from("metadata"),
+            metaplex.PROGRAM_ID.toBuffer(),
+            new PublicKey(token.address).toBuffer(),
+          ],
+          metaplex.PROGRAM_ID
+        )
+      )[0];
+
+      const alternateAuthority = Keypair.generate();
+
+      const metadataIxUpdateWithNewAuthority =
+        metaplex.createUpdateMetadataAccountV2Instruction(
+          {
+            metadata: metadataPDA,
+            updateAuthority: newAuthority.publicKey,
+          },
+          {
+            updateMetadataAccountArgsV2: {
+              data: tokenMetadata,
+              updateAuthority: alternateAuthority.publicKey,
+              primarySaleHappened: true,
+              isMutable: true,
+            },
+          }
+        );
+
+      const metaplexTx1 = sdk.provider.newTX(
+        [metadataIxUpdateWithNewAuthority],
+        [newAuthority]
+      );
+
+      await expectTX(metaplexTx1, "update metadata with new update authority")
+        .to.be.fulfilled;
+
+      // Verify that we can no longer update the metadata with the old authority
+      const metadataIxUsingOldAuthority =
+        metaplex.createUpdateMetadataAccountV2Instruction(
+          {
+            metadata: metadataPDA,
+            updateAuthority: mintWrapperKey,
+          },
+          {
+            updateMetadataAccountArgsV2: {
+              data: tokenMetadata,
+              updateAuthority: alternateAuthority.publicKey,
+              primarySaleHappened: true,
+              isMutable: true,
+            },
+          }
+        );
+
+      const metaplexTx2 = sdk.provider.newTX([metadataIxUsingOldAuthority]);
+      await expectTX(
+        metaplexTx2,
+        "update metadata with old update authority should fail"
       ).to.be.rejected;
     });
   });

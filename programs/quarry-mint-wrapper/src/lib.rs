@@ -168,6 +168,13 @@ pub mod quarry_mint_wrapper {
         });
         Ok(())
     }
+
+    /// Creates metadata for the mint token
+    #[access_control(ctx.accounts.validate())]
+    pub fn set_metaplex_update_authority(ctx: Context<SetMetaplexUpdateAuthority>) -> Result<()> {
+        instructions::set_metaplex_update_authority::handler(ctx)
+    }
+
 }
 
 // --------------------------------

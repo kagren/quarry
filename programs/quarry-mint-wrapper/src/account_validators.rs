@@ -54,6 +54,18 @@ impl<'info> Validate<'info> for PerformMint<'info> {
     }
 }
 
+impl<'info> Validate<'info> for SetMetaplexUpdateAuthority<'info> {
+    fn validate(&self) -> Result<()> {
+        invariant!(
+            self.mint_wrapper.to_account_info().is_writable,
+            Unauthorized
+        );
+
+        assert_keys_eq!(self.token_mint, self.mint_wrapper.token_mint);
+        Ok(())
+    }
+}
+
 /// --------------------------------
 /// Account Structs
 /// --------------------------------

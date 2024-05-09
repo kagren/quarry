@@ -1042,6 +1042,8 @@ version = "5.3.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "borsh 0.9.3",
+ "solana-program",
  "solana-security-txt",
  "vipers",
 ]

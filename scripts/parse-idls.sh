@@ -5,6 +5,7 @@
 rm -fr artifacts/idl/
 mkdir -p artifacts/idl/
 
+echo "Anchor version $(anchor --version)"
 for PROGRAM in $(find programs/ -maxdepth 3 -name lib.rs); do
     PROGRAM_NAME=$(dirname $PROGRAM | xargs dirname | xargs basename | tr '-' '_')
     echo "Parsing IDL for $PROGRAM_NAME"

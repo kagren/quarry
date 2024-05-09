@@ -3,14 +3,19 @@ import type {
   AugmentedProvider,
   TransactionEnvelope,
 } from "@saberhq/solana-contrib";
-import type { TokenAmount, u64 } from "@saberhq/token-utils";
+import type { Token, TokenAmount, u64 } from "@saberhq/token-utils";
 import {
   createInitMintInstructions,
   getOrCreateATA,
   TOKEN_PROGRAM_ID,
 } from "@saberhq/token-utils";
-import type { AccountInfo, PublicKey, Signer } from "@solana/web3.js";
-import { Keypair, SystemProgram } from "@solana/web3.js";
+import type { AccountInfo, Signer } from "@solana/web3.js";
+import {
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+} from "@solana/web3.js";
 
 import type {
   MinterData,
@@ -378,6 +383,110 @@ export class MintWrapper {
     ]);
   }
 
+  /**
+   * Create metadata in metaplex
+   */
+  async createMintMetadata(
+    name: string,
+    symbol: string,
+    uri: string,
+    tokenMint: Token,
+    mintWrapper: PublicKey
+  ): Promise<TransactionEnvelope> {
+    const minterAuthority = this.provider.wallet.publicKey;
+    // Public key that identifies the metadata program.
+    const METADATA_PROGRAM_ID = new PublicKey(
+      "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+    );
+
+    async function findMetadataAddress(mint: PublicKey) {
+      const [publicKey] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from("metadata"),
+          METADATA_PROGRAM_ID.toBuffer(),
+          mint.toBuffer(),
+        ],
+        METADATA_PROGRAM_ID
+      );
+      return publicKey;
+    }
+
+    const metadataInfo = await findMetadataAddress(
+      new PublicKey(tokenMint.address)
+    );
+
+    console.log("mintWrapper", mintWrapper.toBase58());
+    console.log("minterAuthority", minterAuthority.toBase58());
+    console.log("tokenMint", tokenMint.address);
+    console.log("metadataInfo", metadataInfo.toBase58());
+
+    return this.sdk.provider.newTX([
+      this.program.instruction.createMintMetadata(name, symbol, uri, {
+        accounts: {
+          mintWrapper,
+          minterAuthority,
+          tokenMint: tokenMint.address,
+          metadataProgram: METADATA_PROGRAM_ID,
+          metadataInfo: metadataInfo,
+          systemProgram: SystemProgram.programId,
+        },
+      }),
+    ]);
+  }
+
+  /**
+   * Create metadata in metaplex
+   */
+  async setMetaplexUpdateAuthority(
+    tokenMint: Token,
+    mintWrapper: PublicKey,
+    newUpdateAuthority: PublicKey
+  ): Promise<TransactionEnvelope> {
+    const minterAuthority = this.provider.wallet.publicKey;
+    // Public key that identifies the metadata program.
+    const METADATA_PROGRAM_ID = new PublicKey(
+      "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+    );
+
+    async function findMetadataAddress(mint: PublicKey) {
+      const [publicKey] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from("metadata"),
+          METADATA_PROGRAM_ID.toBuffer(),
+          mint.toBuffer(),
+        ],
+        METADATA_PROGRAM_ID
+      );
+      return publicKey;
+    }
+
+    const metadataInfo = await findMetadataAddress(
+      new PublicKey(tokenMint.address)
+    );
+
+    /*
+    console.log("mintWrapper", mintWrapper.toBase58());
+    console.log("minterAuthority", minterAuthority.toBase58());
+    console.log("tokenMint", tokenMint.address);
+    console.log("metadataInfo", metadataInfo.toBase58());
+    console.log("newUpdateAuthority", newUpdateAuthority.toBase58());
+    */
+
+    return this.sdk.provider.newTX([
+      this.program.instruction.setMetaplexUpdateAuthority({
+        accounts: {
+          mintWrapper,
+          minterAuthority,
+          tokenMint: tokenMint.address,
+          metadataProgram: METADATA_PROGRAM_ID,
+          metadataInfo: metadataInfo,
+          systemProgram: SystemProgram.programId,
+          sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+          newUpdateAuthority: newUpdateAuthority,
+        },
+      }),
+    ]);
+  }
   /**
    * Performs a mint of tokens to an account.
    * @deprecated use {@link performMintWithMinter}

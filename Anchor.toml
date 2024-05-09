@@ -18,6 +18,7 @@ quarry_mint_wrapper = "QMWoBmAyJLAsA1Lh9ugMTw2gciTihncciphzdNzdZYV"
 quarry_operator = "QoP6NfrQbaGnccXQrMLUkog2tQZ4C1RFgJcwDnT8Kmz"
 quarry_redeemer = "QRDxhMw1P2NEfiw5mYXG79bwfgHTdasY2xNP76XSea9"
 quarry_registry = "QREGBnEj9Sa5uR91AV8u3FxThgP5ZCvdZUW2bHAkfNc"
+token_metadata = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 
 [programs.devnet]
 quarry_merge_mine = "QMMD16kjauP5knBwxNUJRZ1Z5o3deBuFrqVjBVmmqto"
@@ -26,6 +27,7 @@ quarry_mint_wrapper = "QMWoBmAyJLAsA1Lh9ugMTw2gciTihncciphzdNzdZYV"
 quarry_operator = "QoP6NfrQbaGnccXQrMLUkog2tQZ4C1RFgJcwDnT8Kmz"
 quarry_redeemer = "QRDxhMw1P2NEfiw5mYXG79bwfgHTdasY2xNP76XSea9"
 quarry_registry = "QREGBnEj9Sa5uR91AV8u3FxThgP5ZCvdZUW2bHAkfNc"
+token_metadata = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 
 [programs.testnet]
 quarry_merge_mine = "QMMD16kjauP5knBwxNUJRZ1Z5o3deBuFrqVjBVmmqto"
@@ -34,6 +36,7 @@ quarry_mint_wrapper = "QMWoBmAyJLAsA1Lh9ugMTw2gciTihncciphzdNzdZYV"
 quarry_operator = "QoP6NfrQbaGnccXQrMLUkog2tQZ4C1RFgJcwDnT8Kmz"
 quarry_redeemer = "QRDxhMw1P2NEfiw5mYXG79bwfgHTdasY2xNP76XSea9"
 quarry_registry = "QREGBnEj9Sa5uR91AV8u3FxThgP5ZCvdZUW2bHAkfNc"
+token_metadata = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 
 [programs.localnet]
 quarry_merge_mine = "QMMD16kjauP5knBwxNUJRZ1Z5o3deBuFrqVjBVmmqto"
@@ -42,3 +45,9 @@ quarry_mint_wrapper = "QMWoBmAyJLAsA1Lh9ugMTw2gciTihncciphzdNzdZYV"
 quarry_operator = "QoP6NfrQbaGnccXQrMLUkog2tQZ4C1RFgJcwDnT8Kmz"
 quarry_redeemer = "QRDxhMw1P2NEfiw5mYXG79bwfgHTdasY2xNP76XSea9"
 quarry_registry = "QREGBnEj9Sa5uR91AV8u3FxThgP5ZCvdZUW2bHAkfNc"
+token_metadata = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+
+[test.validator]
+[[test.genesis]]
+address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+program = "target/deploy/token_metadata.so"
